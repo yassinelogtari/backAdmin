@@ -12,36 +12,6 @@ import{file} from './routes/file'
 const { PDFDocument } = require('pdf-lib');
 const fs = require('fs');
 
-async function splitPDF() {
-  const pdfPath = 'files/matiere.pdf';
-  const pdfBytes = fs.readFileSync(pdfPath);
-
-  const pdfDoc = await PDFDocument.load(pdfBytes);
-  const pageCount = pdfDoc.getPageCount();
-
-  for (let pageNumber = 0; pageNumber < pageCount; pageNumber++) {
-    const splitDoc = await PDFDocument.create();
-    const [copiedPage] = await splitDoc.copyPages(pdfDoc, [pageNumber]);
-
-    splitDoc.addPage(copiedPage);
-
-    const splitPDFPath = `paix/${pageNumber + 1}.pdf`;
-    const splitPDFBytes = await splitDoc.save();
-
-    fs.writeFileSync(splitPDFPath, splitPDFBytes);
-    console.log(`Page ${pageNumber + 1} saved to ${splitPDFPath}`);
-  }
-}
-
-splitPDF()
-  .then(() => {
-    console.log('PDF split successfully.');
-  })
-  .catch((error) => {
-    console.log('Error splitting PDF:', error);
-  });
-
-
 
 
 
@@ -50,6 +20,37 @@ import * as crypto from "crypto";
 import * as path from "path";
 import { File } from './models/File';
 const app = express();
+
+
+const upload = multer({ dest: 'uploads/' });
+app.post('/api/pdfsplit', upload.single('pdfFile'),async (req, res) => {
+  try {
+    const pdfPath = req.file.path
+    const pdfBytes = fs.readFileSync(pdfPath);
+
+    const pdfDoc = await PDFDocument.load(pdfBytes);
+    const pageCount = pdfDoc.getPageCount();
+
+    for (let pageNumber = 0; pageNumber < pageCount; pageNumber++) {
+      const splitDoc = await PDFDocument.create();
+      const [copiedPage] = await splitDoc.copyPages(pdfDoc, [pageNumber]);
+
+      splitDoc.addPage(copiedPage);
+
+      const splitPDFPath = `paix/${pageNumber + 1}.pdf`;
+      const splitPDFBytes = await splitDoc.save();
+
+      fs.writeFileSync(splitPDFPath, splitPDFBytes);
+      console.log(`Page ${pageNumber + 1} saved to ${splitPDFPath}`);
+    }
+    console.log('PDF split successfully.');
+    res.send('PDF split successfully.');
+  } catch (error) {
+    console.log('Error splitting PDF:', error);
+    res.status(500).send('Error splitting PDF');
+  }
+});
+
 
 //upload file function
 
