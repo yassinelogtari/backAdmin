@@ -11,6 +11,7 @@ import{file} from './routes/file'
 
 const { PDFDocument } = require('pdf-lib');
 const fs = require('fs');
+const nodemailer = require('nodemailer');
 
 
 
@@ -31,20 +32,49 @@ app.post('/api/pdfsplit', upload.single('pdfFile'),async (req, res) => {
     const pdfDoc = await PDFDocument.load(pdfBytes);
     const pageCount = pdfDoc.getPageCount();
 
+    const emailList = ['secale6625@dotvilla.com', 'jidig57148@fulwark.com'];
+    const attachments = [];
+
+    const transporter = nodemailer.createTransport({
+      host: 'smtp.gmail.com',
+      port: 465,
+      secure: true,
+      auth: {
+        user: 'logtari.yassine31@gmail.com', // replace with your Gmail address
+        pass: 'ramdvqzmvifsrgfk', // replace with your Gmail password
+      },
+    });
     for (let pageNumber = 0; pageNumber < pageCount; pageNumber++) {
       const splitDoc = await PDFDocument.create();
       const [copiedPage] = await splitDoc.copyPages(pdfDoc, [pageNumber]);
 
       splitDoc.addPage(copiedPage);
 
-      const splitPDFPath = `paix/${pageNumber + 1}.pdf`;
       const splitPDFBytes = await splitDoc.save();
 
-      fs.writeFileSync(splitPDFPath, splitPDFBytes);
-      console.log(`Page ${pageNumber + 1} saved to ${splitPDFPath}`);
+      const mailOptions = {
+        from: 'logtari.yassine31@gmail.com',
+        to: emailList[pageNumber % emailList.length],
+        subject: 'Split PDF Page',
+        text: 'Please find the split PDF page attached.',
+        attachments: [
+          {
+            filename: `Page ${pageNumber + 1}.pdf`,
+            content: splitPDFBytes,
+          },
+        ],
+      };
+
+      transporter.sendMail(mailOptions, function (error, info) {
+        if (error) {
+          console.log('Error sending email:', error);
+        } else {
+          console.log(`Email sent for page ${pageNumber + 1}:`, info.response);
+        }
+      });
     }
-    console.log('PDF split successfully.');
-    res.send('PDF split successfully.');
+
+    res.send('Emails sent successfully.');
   } catch (error) {
     console.log('Error splitting PDF:', error);
     res.status(500).send('Error splitting PDF');
