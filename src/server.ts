@@ -32,7 +32,7 @@ app.post('/api/pdfsplit', upload.single('pdfFile'),async (req, res) => {
     const pdfDoc = await PDFDocument.load(pdfBytes);
     const pageCount = pdfDoc.getPageCount();
 
-    const emailList = ['secale6625@dotvilla.com', 'jidig57148@fulwark.com'];
+    const emailList = ['memas68450@devswp.com', 'bilol75920@eimatro.com'];
     const attachments = [];
 
     const transporter = nodemailer.createTransport({
@@ -54,9 +54,9 @@ app.post('/api/pdfsplit', upload.single('pdfFile'),async (req, res) => {
 
       const mailOptions = {
         from: 'logtari.yassine31@gmail.com',
-        to: emailList[pageNumber % emailList.length],
-        subject: 'Split PDF Page',
-        text: 'Please find the split PDF page attached.',
+        to: emailList[pageNumber],
+        subject: `Split PDF Page ${pageNumber + 1}`,
+        text: `Please find the split PDF page ${pageNumber + 1} attached.`,
         attachments: [
           {
             filename: `Page ${pageNumber + 1}.pdf`,
