@@ -24,6 +24,8 @@ const app = express();
 
 
 const upload = multer({ dest: 'uploads/' });
+
+
 app.post('/api/pdfsplit', upload.single('pdfFile'),async (req, res) => {
   try {
     const pdfPath = req.file.path
@@ -32,7 +34,7 @@ app.post('/api/pdfsplit', upload.single('pdfFile'),async (req, res) => {
     const pdfDoc = await PDFDocument.load(pdfBytes);
     const pageCount = pdfDoc.getPageCount();
 
-    const emailList = ['memas68450@devswp.com', 'bilol75920@eimatro.com'];
+    const emailList = ['wivetiy167@fitwl.com', 'bilol75920@eimatro.com'];
     const attachments = [];
 
     const transporter = nodemailer.createTransport({
@@ -84,6 +86,8 @@ app.post('/api/pdfsplit', upload.single('pdfFile'),async (req, res) => {
 
 //upload file function
 
+//upload file function
+
 const uploadfile = () => {
     let checksum = '';
     let month='';
@@ -95,29 +99,27 @@ const uploadfile = () => {
       filename: (req, file, cb) => {
         crypto.randomBytes(16, (err, raw) => {
           if (err) return cb(err);
-          month = req.body.month; 
-          year = req.body.year; 
           checksum = raw.toString('hex');
-          const fileName = `${month}_${year}_${checksum}${path.extname(file.originalname)}`;
+          const fileName = `${req.body.month}_${req.body.year}_${raw.toString('hex')}${path.extname(file.originalname)}`;
           cb(null, fileName);
         });
       },
     });
-  
+
     const upload = multer({ storage: storage });
-  
+
     app.post('/api/upload', upload.single('file'), async (req, res) => {
       try {
         const file = req.file;
         const { month, year } = req.body; 
-  
+
         const newFile = new File();
         newFile.month = month;
         newFile.year = year;
         newFile.checksumpdf = checksum; 
         newFile.file = file.originalname;
         await newFile.save();
-  
+
         res.status(200).json('File has been uploaded');
       } catch (error) {
         console.log(error);
@@ -125,9 +127,9 @@ const uploadfile = () => {
       }
     });
   };
-  
+
   uploadfile();
-  
+
 const AppDataSource = new DataSource({
     
             type:"postgres",
