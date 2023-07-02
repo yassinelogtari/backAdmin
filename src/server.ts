@@ -6,6 +6,7 @@ import { Employe } from "./models/Employe";
 import { User } from "./models/User";
 import { createUserRouter } from './routes/user';
 import { createEmployeRouter } from './routes/employe';
+import { getRepository } from "typeorm";
 import{file} from './routes/file'
 
 
@@ -34,7 +35,9 @@ app.post('/api/pdfsplit', upload.single('pdfFile'),async (req, res) => {
     const pdfDoc = await PDFDocument.load(pdfBytes);
     const pageCount = pdfDoc.getPageCount();
 
-    const emailList = ['wivetiy167@fitwl.com', 'bilol75920@eimatro.com'];
+    
+    const employeEmails = await Employe.find({ select: ["email"] });
+    const emailList = employeEmails.map(employe => employe.email);
     const attachments = [];
 
     const transporter = nodemailer.createTransport({
@@ -83,8 +86,6 @@ app.post('/api/pdfsplit', upload.single('pdfFile'),async (req, res) => {
   }
 });
 
-
-//upload file function
 
 //upload file function
 
